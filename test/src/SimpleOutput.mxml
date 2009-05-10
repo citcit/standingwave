@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+    layout="absolute"
+    applicationComplete="onApplicationComplete()">
+    
+    <mx:Script>
+        <![CDATA[
+            import com.noteflight.standingwave2.filters.EnvelopeFilter;
+            import com.noteflight.standingwave2.performance.ListPerformance;
+            import com.noteflight.standingwave2.sources.SoundSource;
+            import com.noteflight.standingwave2.filters.EchoFilter;
+            import com.noteflight.standingwave2.performance.AudioPerformer;
+            import com.noteflight.standingwave2.performance.PerformanceElement;
+            import com.noteflight.standingwave2.sources.SineSource;
+            import com.noteflight.standingwave2.elements.AudioDescriptor;
+            import com.noteflight.standingwave2.elements.IAudioSource;
+            import com.noteflight.standingwave2.output.AudioPlayer;
+
+            [Bindable]
+            public var player:AudioPlayer = new AudioPlayer(8192);
+            
+            [Embed(source="testing123.mp3")]
+            private var testSound:Class;
+            
+            private var basicSource:IAudioSource;
+            
+            public function onApplicationComplete():void
+            {
+            }
+            
+            public function playSource(source:IAudioSource):void
+            {
+                if (echoCheckBox.selected)
+                {
+                    if (!(source is AudioPerformer))
+                    {
+                        var p:ListPerformance = new ListPerformance();
+                        p.addSourceAt(0, source);
+                        source = new AudioPerformer(p);
+                    }
+                    AudioPerformer(source).duration += 2.5;
+                    source = new EchoFilter(source, 0.4);
+                }
+                
+                player.play(source);
+            }
+            
+            public function playSine():void
+            {
+                playSource(new SineSource(new AudioDescriptor(), 100000, 440));
+            }
+
+            public function playShortSine():void
+            {
+                playSource(new SineSource(new AudioDescriptor(), 1.0, 440));
+            }
+            
+            public function playSineSequence():void
+            {
+                var p:ListPerformance = new ListPerformance();
+                for (var i:Number = 0; i < 20; i++)
+                {
+                    var noteSource:IAudioSource = new SineSource(new AudioDescriptor(), 0.25, 200 + 1000 * Math.random());
+                    noteSource = new EnvelopeFilter(noteSource, 0.01, 0.15, 0.1, 0, 0.1);
+                    p.addSourceAt(i * 0.1, noteSource);
+                }
+                playSource(new AudioPerformer(p));
+            }
+            
+            public function playSound():void
+            {
+                playSource(new SoundSource(new testSound));
+            }
+        ]]>
+    </mx:Script>
+    
+    <mx:VBox>
+        <mx:Button label="Play Sine Wave" click="playSine()"/>
+        <mx:Button label="Play 1-second Sine Wave" click="playShortSine()"/>
+        <mx:Button label="Play Sine Sequence" click="playSineSequence()"/>
+        <mx:Button label="Play Sound" click="playSound()"/>
+        <mx:Spacer height="10"/>
+        <mx:HBox>
+            <mx:CheckBox id="echoCheckBox" label="Echo"/>
+        </mx:HBox>
+        <mx:Spacer height="10"/>
+        <mx:Button label="Stop" click="player.stop()"/>
+        <mx:Spacer height="10"/>
+        <mx:Label text="position: {player.position}"/>
+        <mx:Label text="cpu: {player.cpuPercentage}%"/>
+        <mx:Label text="latency: {player.latency}%"/>
+    </mx:VBox>
+</mx:Application>
