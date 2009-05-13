@@ -6,13 +6,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package com.noteflight.standingwave2.filter
+package com.noteflight.standingwave2.filters
 {
     import __AS3__.vec.Vector;
     
     import com.noteflight.standingwave2.elements.AudioDescriptor;
     import com.noteflight.standingwave2.elements.Sample;
-    import com.noteflight.standingwave2.filters.EnvelopeFilter;
     import com.noteflight.standingwave2.utils.AudioUtils;
     
     import flexunit.framework.TestCase;
