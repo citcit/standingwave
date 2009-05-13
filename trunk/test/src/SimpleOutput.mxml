@@ -5,19 +5,22 @@
     
     <mx:Script>
         <![CDATA[
-            import com.noteflight.standingwave2.filters.EnvelopeFilter;
-            import com.noteflight.standingwave2.performance.ListPerformance;
-            import com.noteflight.standingwave2.sources.SoundSource;
-            import com.noteflight.standingwave2.filters.EchoFilter;
-            import com.noteflight.standingwave2.performance.AudioPerformer;
-            import com.noteflight.standingwave2.performance.PerformanceElement;
-            import com.noteflight.standingwave2.sources.SineSource;
+            import com.noteflight.standingwave2.filters.ResamplingFilter;
+            import flash.utils.getTimer;
             import com.noteflight.standingwave2.elements.AudioDescriptor;
             import com.noteflight.standingwave2.elements.IAudioSource;
+            import com.noteflight.standingwave2.filters.EchoFilter;
+            import com.noteflight.standingwave2.filters.EnvelopeFilter;
+            import com.noteflight.standingwave2.output.AudioSampleHandler;
             import com.noteflight.standingwave2.output.AudioPlayer;
+            import com.noteflight.standingwave2.performance.ListPerformance;
+            import com.noteflight.standingwave2.performance.AudioPerformer;
+            import com.noteflight.standingwave2.performance.PerformanceElement;
+            import com.noteflight.standingwave2.sources.SoundSource;
+            import com.noteflight.standingwave2.sources.SineSource;
 
             [Bindable]
-            public var player:AudioPlayer = new AudioPlayer(8192);
+            public var player:AudioPlayer = new AudioPlayer();
             
             [Embed(source="testing123.mp3")]
             private var testSound:Class;
@@ -30,6 +33,11 @@
             
             public function playSource(source:IAudioSource):void
             {
+                if (resampleCheckBox.selected)
+                {
+                    source = new ResamplingFilter(source, Number(resampleFactorInput.text));
+                }
+                
                 if (echoCheckBox.selected)
                 {
                     if (!(source is AudioPerformer))
@@ -82,6 +90,10 @@
         <mx:Spacer height="10"/>
         <mx:HBox>
             <mx:CheckBox id="echoCheckBox" label="Echo"/>
+        </mx:HBox>
+        <mx:HBox>
+            <mx:CheckBox id="resampleCheckBox" label="Resample with factor:"/>
+            <mx:TextInput id="resampleFactorInput" text="1" enabled="{resampleCheckBox.selected}"/>
         </mx:HBox>
         <mx:Spacer height="10"/>
         <mx:Button label="Stop" click="player.stop()"/>

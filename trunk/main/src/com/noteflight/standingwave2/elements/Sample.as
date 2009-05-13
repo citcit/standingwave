@@ -18,7 +18,7 @@ package com.noteflight.standingwave2.elements
      * are arrays of sample frame.  Each frame, in turn, is an integer representing
      * the signal's amplitude in the format specified by the sample's AudioDescriptor.
      */
-    public class Sample implements IAudioSource
+    public class Sample implements IAudioSource, IRandomAccessSource
     {
         /** Array of Vectors of data samples as Numbers, one per channel. */
         public var channelData:Array;
@@ -103,9 +103,8 @@ package com.noteflight.standingwave2.elements
             }
         }
         
-
         ////////////////////////////////////////////        
-        // IAudioSource interface implementation
+        // IRandomAccessSource/IAudioSource interface implementation
         ////////////////////////////////////////////        
         
         /**
@@ -121,9 +120,17 @@ package com.noteflight.standingwave2.elements
             return channelData[0].length;
         }
 
+        /**
+         * Current position for retrieval of audio.  Note that a Sample's position is settable, unlike a generic IAudioSource. 
+         */
         public function get position():Number
         {
             return _position;
+        }
+        
+        public function set position(p:Number):void
+        {
+            _position = p;
         }
         
         public function resetPosition():void
@@ -131,15 +138,20 @@ package com.noteflight.standingwave2.elements
             _position = 0;
         }
         
-        public function getSample(numFrames:Number):Sample
+        public function getSampleRange(fromOffset:Number, toOffset:Number):Sample
         {
             var sample:Sample = new Sample(descriptor);
             for (var c:Number = 0; c < channels; c++)
             {
-                sample.channelData[c] = Vector.<Number>(channelData[c]).slice(_position, _position + numFrames);
+                sample.channelData[c] = Vector.<Number>(channelData[c]).slice(fromOffset, toOffset);
             }
+            return sample;
+        }
+
+        public function getSample(numFrames:Number):Sample
+        {
+            var sample:Sample = getSampleRange(_position, _position + numFrames);
             _position += numFrames;
-            
             return sample;
         }
         

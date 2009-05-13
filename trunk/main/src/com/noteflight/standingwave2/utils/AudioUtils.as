@@ -8,6 +8,10 @@
 
 package com.noteflight.standingwave2.utils
 {
+    import com.noteflight.standingwave2.elements.IAudioSource;
+    import com.noteflight.standingwave2.elements.IRandomAccessSource;
+    import com.noteflight.standingwave2.filters.CacheFilter;
+    
     public class AudioUtils
     {
         /** The base 10 exponent multiplier for decibels. */
@@ -48,6 +52,14 @@ package com.noteflight.standingwave2.utils
         public static function concaveUnipolar(parameter:Number):Number
         {
             return Math.log(Math.max(MINIMUM_CONTROL, parameter)) / MINIMUM_CONTROL_LN;
+        }
+        
+        /**
+         * Obtain an IRandomAccessSource for a given audio source by caching it if necessary. 
+         */
+        public static function toRandomAccessSource(source:IAudioSource):IRandomAccessSource
+        {
+            return (source is IRandomAccessSource) ? IRandomAccessSource(source) : new CacheFilter(source);
         }
     }
 }
