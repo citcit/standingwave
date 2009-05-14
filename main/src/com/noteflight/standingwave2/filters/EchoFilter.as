@@ -18,14 +18,59 @@ package com.noteflight.standingwave2.filters
         private var _bufferLength:Number;
         private var _wet:Number;
         private var _decay:Number;
+        private var _period:Number;
         private var _ring:Sample;
         
-        public function EchoFilter(source:IAudioSource, period:Number, wet:Number = 0.5, decay:Number = 0.5)
+        public function EchoFilter(source:IAudioSource = null, period:Number = 0, wet:Number = 0.5, decay:Number = 0.5)
         {
             super(source);
-            _wet = wet;
-            _bufferLength = period * descriptor.rate;
-            _decay = decay;
+            this.period = period;
+            this.wet = wet;
+            this.decay = decay;
+        }
+        
+        override public function resetPosition():void
+        {
+            super.resetPosition();
+            initializeState();
+        }        
+        
+        public function get wet():Number
+        {
+            return _wet;
+        }
+        
+        public function set wet(value:Number):void
+        {
+            _wet = value;
+            initializeState();
+        }
+        
+        public function get decay():Number
+        {
+            return _decay;
+        }
+        
+        public function set decay(value:Number):void
+        {
+            _decay = value;
+            initializeState();
+        }
+        
+        public function get period():Number
+        {
+            return _period;
+        }
+        
+        public function set period(value:Number):void
+        {
+            _period = value;
+            initializeState();
+        }
+        
+        protected function initializeState():void
+        {
+            _ring = null;
         }
         
         ////////////////////////////////////////////        
@@ -36,6 +81,7 @@ package com.noteflight.standingwave2.filters
         {
             if (_ring == null)
             {
+                _bufferLength = Math.floor(_period * descriptor.rate);
                 _ring = new Sample(descriptor, _bufferLength);
             }
             
@@ -56,7 +102,7 @@ package com.noteflight.standingwave2.filters
 
         override public function clone():IAudioSource
         {
-            return new EchoFilter(source.clone(), _bufferLength / descriptor.rate, _wet, _decay);
+            return new EchoFilter(source.clone(), period, wet, decay);
         }
     }
 }

@@ -5,6 +5,7 @@
     
     <mx:Script>
         <![CDATA[
+            import com.noteflight.standingwave2.filters.BiquadFilter;
             import com.noteflight.standingwave2.filters.ResamplingFilter;
             import flash.utils.getTimer;
             import com.noteflight.standingwave2.elements.AudioDescriptor;
@@ -27,6 +28,10 @@
             
             private var basicSource:IAudioSource;
             
+            private var resampler:ResamplingFilter = new ResamplingFilter();
+            private var echo:EchoFilter = new EchoFilter();
+            private var biquad:BiquadFilter = new BiquadFilter();
+            
             public function onApplicationComplete():void
             {
             }
@@ -35,7 +40,9 @@
             {
                 if (resampleCheckBox.selected)
                 {
-                    source = new ResamplingFilter(source, Number(resampleFactorInput.text));
+                    resampler.source = source;
+                    resampler.factor = resampleFactor.value;
+                    source = resampler;
                 }
                 
                 if (echoCheckBox.selected)
@@ -47,7 +54,18 @@
                         source = new AudioPerformer(p);
                     }
                     AudioPerformer(source).duration += 2.5;
-                    source = new EchoFilter(source, 0.4);
+                    echo.period = echoDelay.value;
+                    echo.source = source;
+                    source = echo;
+                }
+                
+                if (biquadCheckBox.selected)
+                {
+                    biquad.source = source;
+                    biquad.type = biquadCombo.selectedItem.value;
+                    biquad.frequency = biquadFreq.value;
+                    biquad.resonance = biquadResonance.value;
+                    source = biquad;
                 }
                 
                 player.play(source);
@@ -79,6 +97,13 @@
             {
                 playSource(new SoundSource(new testSound));
             }
+            
+            [Bindable]
+            public var biquadTypes:Array = [
+                {label: "Low Pass", value: BiquadFilter.LOW_PASS_TYPE}, 
+                {label: "High Pass", value: BiquadFilter.HIGH_PASS_TYPE}, 
+                {label: "Band Pass", value: BiquadFilter.BAND_PASS_TYPE}
+            ];
         ]]>
     </mx:Script>
     
@@ -89,11 +114,20 @@
         <mx:Button label="Play Sound" click="playSound()"/>
         <mx:Spacer height="10"/>
         <mx:HBox>
-            <mx:CheckBox id="echoCheckBox" label="Echo"/>
-        </mx:HBox>
-        <mx:HBox>
-            <mx:CheckBox id="resampleCheckBox" label="Resample with factor:"/>
-            <mx:TextInput id="resampleFactorInput" text="1" enabled="{resampleCheckBox.selected}"/>
+            <mx:HBox>
+                <mx:CheckBox id="echoCheckBox" label="Echo"/>
+                <mx:VSlider id="echoDelay" value="0.4" minimum="0" maximum="2"/>
+            </mx:HBox>
+            <mx:HBox>
+                <mx:CheckBox id="resampleCheckBox" label="Resample with factor:"/>
+                <mx:VSlider id="resampleFactor" value="1" minimum="0.5" maximum="2"/>
+            </mx:HBox>
+            <mx:HBox>
+                <mx:CheckBox id="biquadCheckBox" label="Biquad"/>
+                <mx:ComboBox id="biquadCombo" dataProvider="{biquadTypes}" selectedIndex="0"/>
+                <mx:VSlider id="biquadFreq" value="1000" minimum="1" maximum="10000"/>
+                <mx:VSlider id="biquadResonance" value="1" minimum="0" maximum="5"/>
+            </mx:HBox>
         </mx:HBox>
         <mx:Spacer height="10"/>
         <mx:Button label="Stop" click="player.stop()"/>
