@@ -9,8 +9,9 @@
 package com.noteflight.standingwave2.elements
 {
     /**
-     * An IRandomAccessSource is an IAudioSource from which any desired subrange may be extracted
-     * at will, as a Sample.
+     * An IRandomAccessSource is an interface implemented by IAudioSources that
+     * expose the ability to extract any desired subrange at will, given its
+     * starting and ending index.
      */
     public interface IRandomAccessSource
     {

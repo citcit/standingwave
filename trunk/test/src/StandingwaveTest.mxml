@@ -7,7 +7,8 @@
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
                                xmlns:flexunit="flexunit.flexui.*"
-                                creationComplete="onCreationComplete()">
+                                creationComplete="onCreationComplete()"
+                                width="900" height="500">
         <mx:Script>
                 <![CDATA[
                         private function onCreationComplete():void

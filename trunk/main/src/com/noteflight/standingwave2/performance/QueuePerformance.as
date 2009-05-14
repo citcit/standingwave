@@ -15,8 +15,9 @@ package com.noteflight.standingwave2.performance
     
     /**
      * A QueuePerformance works forward through a queue of audio sources.  The final element
-     * of the queue is repeated until more elements are added, at which point the performance
-     * advances.
+     * of the queue is repeated indefinitely.  When more elements are added to a QueuePerformance,
+     * the new elements are played immediately following the last complete repeat of any currently
+     * playing element.
      */
     public class QueuePerformance implements IPerformance
     {
@@ -30,6 +31,9 @@ package com.noteflight.standingwave2.performance
             _started = false;
         }
 
+        /**
+         * Add a new audio source to the queue of sources rendered by this queue.
+         */
         public function addSource(source:IAudioSource):void
         {
             _sources.push(source);

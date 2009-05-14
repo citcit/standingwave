@@ -11,27 +11,29 @@ package com.noteflight.standingwave2.elements
     import __AS3__.vec.Vector;
     
     /**
-     * Sample is the fundamental audio source implementation, being a set of buffers
-     * containing actual numeric samples of an audio signal.  The <code>channelData</code>
+     * Sample is the fundamental audio source in StandingWave, and is simply a set of buffers
+     * containing the individual numeric samples of an audio signal.  The <code>channelData</code>
      * property is an Array of channel buffers, whose length is the number of channels
-     * specified by the descriptor.  Each channel buffer is also an Array, whose elements
-     * are arrays of sample frame.  Each frame, in turn, is an integer representing
-     * the signal's amplitude in the format specified by the sample's AudioDescriptor.
+     * specified by the descriptor.  Each channel buffer is a Vector of Numbers, whose elements
+     * are the individual samples for that channel, ranging between -1 and +1.
      */
     public class Sample implements IAudioSource, IRandomAccessSource
     {
-        /** Array of Vectors of data samples as Numbers, one per channel. */
+        /** Array of Vectors of data samples as Numbers, one Vector per channel. */
         public var channelData:Array;
         
         /** Audio descriptor for this sample. */
         private var _descriptor:AudioDescriptor;
         
+        /** Audio cursor position, expressed as a sample frame index. */
         private var _position:Number;
 
         /**
          * Construct a new, empty Sample with some specified audio format. 
          * @param descriptor an AudioDescriptor specifying the audio format of this sample.
-         * @param frames the number of frames in this Sample
+         * @param frames the number of frames in this Sample.  If omitted or negative, no channel
+         * data vectors are created.  If zero, then zero-length vectors are created and may be
+         * grown in size.  If positive, then fixed-size vectors are created, and will contain zeroes.
          */
         public function Sample(descriptor:AudioDescriptor, frames:Number = -1)
         {
@@ -108,20 +110,23 @@ package com.noteflight.standingwave2.elements
         ////////////////////////////////////////////        
         
         /**
-         * Get the AudioDescriptor for this Sample.
+         * @inheritDoc
          */
         public function get descriptor():AudioDescriptor
         {
             return _descriptor;
         }
         
+        /**
+         * @inheritDoc
+         */
         public function get frameCount():Number
         {
             return channelData[0].length;
         }
 
         /**
-         * Current position for retrieval of audio.  Note that a Sample's position is settable, unlike a generic IAudioSource. 
+         * @inheritDoc
          */
         public function get position():Number
         {
@@ -133,11 +138,17 @@ package com.noteflight.standingwave2.elements
             _position = p;
         }
         
+        /**
+         * @inheritDoc
+         */
         public function resetPosition():void
         {
             _position = 0;
         }
         
+        /**
+         * @inheritDoc
+         */
         public function getSampleRange(fromOffset:Number, toOffset:Number):Sample
         {
             var sample:Sample = new Sample(descriptor);
@@ -148,6 +159,9 @@ package com.noteflight.standingwave2.elements
             return sample;
         }
 
+        /**
+         * @inheritDoc
+         */
         public function getSample(numFrames:Number):Sample
         {
             var sample:Sample = getSampleRange(_position, _position + numFrames);
@@ -155,6 +169,11 @@ package com.noteflight.standingwave2.elements
             return sample;
         }
         
+        /**
+         * Clone this Sample.  Note that the channel data is shared between the
+         * original and the clone, since channel data inside a Sample should never
+         * be mutated except for temporary Samples used inside a filter pipeline.
+         */
         public function clone():IAudioSource
         {
             var sample:Sample = new Sample(descriptor);

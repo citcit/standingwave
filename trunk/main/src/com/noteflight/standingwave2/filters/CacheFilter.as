@@ -16,8 +16,10 @@ package com.noteflight.standingwave2.filters
     
     /**
      * This audio filter does not transform its underlying source.  It merely caches its
-     * audio data in a stored Sample object, which is expanded dynamically to cover a range
-     * from the first frame up to the last frame requested via a call to getSample().
+     * audio data in a stored Sample object, which is expanded as needed to cover a range
+     * from the first frame up to the last frame requested via a call to getSample().  This
+     * is useful for performance reasons, and is also a way to turn any IAudioSource
+     * into an IRandomAccessSource.
      */
     public class CacheFilter implements IAudioFilter, IRandomAccessSource
     {
@@ -43,11 +45,13 @@ package com.noteflight.standingwave2.filters
             _source = s;
             if (_source != null)
             {
+                resetPosition();
+
                 // reset our cached data if the source changes
                 _cache = new Sample(source.descriptor, 0);
-                _source.resetPosition();  // index after last frame read into cache
-
-                resetPosition();
+                
+                // Reset the source's position since we've cached none of it yet
+                _source.resetPosition();
             }            
         }
 
@@ -93,7 +97,9 @@ package com.noteflight.standingwave2.filters
             if (toOffset > source.position)
             {
                 // An uncached run of data is being retrieved; add it to the cache by calling
-                // getSample() on the source and copying that into the cache.
+                // getSample() on the source and copying that into the cache.  This advances the
+                // cursor position of the source, which records how much of it has been cached
+                // downstream in this CacheFilter.
                 //
                 var sample:Sample = source.getSample(toOffset - source.position);
                 for (var c:int = 0; c < sample.channels; c++)
@@ -104,6 +110,9 @@ package com.noteflight.standingwave2.filters
             return _cache.getSampleRange(fromOffset, toOffset);
         }
          
+        /**
+         * Get the next run of audio by calling getSampleRange() based on the current cursor position. 
+         */
         public function getSample(numFrames:Number):Sample
         {
             var sample:Sample = getSampleRange(_position, _position + numFrames);

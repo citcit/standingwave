@@ -14,6 +14,11 @@ package com.noteflight.standingwave2.filters
     import com.noteflight.standingwave2.elements.Sample;
     import com.noteflight.standingwave2.utils.AudioUtils;
     
+    /**
+     * EnvelopeFilter applies a so-called ADSR (attack/decay/sustain/release) amplitude envelope to its
+     * underlying source, to provide a shape to a sound source that typically has no
+     * amplitude envelope. 
+     */
     public class EnvelopeFilter extends AbstractFilter
     {
         /** The duration of the attack envelope in frames. */
@@ -34,6 +39,18 @@ package com.noteflight.standingwave2.filters
         /** current gain */
         private var _currentGain:Number = 0;
         
+        /**
+         * Create a new EnvelopeFilter. 
+         * @param source the underlying audio source
+         * @param attackTime the time of the attack phase of the envelope, during which it rises linearly from zero
+         * to unity (if decayTime is nonzero) or to the sustain level (if decayTime is zero).
+         * @param decayTime the time of the decay phase of the envelope, during which it decays exponentially from
+         * unity to the sustain level.
+         * @param sustain the gain factor for the sustain level.
+         * @param holdTime the time for which the sustain level is maintained
+         * @param releaseTime the time of the release phase, during which the envelope decays exponentially from
+         * the sustain level to a near-zero factor.
+         */
         public function EnvelopeFilter(source:IAudioSource, attackTime:Number, decayTime:Number, sustain:Number, holdTime:Number, releaseTime:Number)
         {
             super(source);
@@ -45,7 +62,8 @@ package com.noteflight.standingwave2.filters
         }
                 
         /**
-         * Return the length of this source.
+         * Return the length of this source, which is in effect gated by the overall
+         * length of the envelope.
          */
         override public function get frameCount():Number
         {

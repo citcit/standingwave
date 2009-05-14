@@ -9,8 +9,8 @@
 package com.noteflight.standingwave2.elements
 {
     /**
-     * An IAudioFilter is an IAudioSource that is itself derived from some transformation of an underlying
-     * IAudioSource. 
+     * An IAudioFilter is an IAudioSource whose signal is derived from
+     * some transformation of another IAudioSource.
      */
     public interface IAudioFilter extends IAudioSource
     {

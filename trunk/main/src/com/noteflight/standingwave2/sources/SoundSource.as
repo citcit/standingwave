@@ -17,6 +17,10 @@ package com.noteflight.standingwave2.sources
     import flash.media.Sound;
     import flash.utils.ByteArray;
     
+    /**
+     * A SoundSource serves as a source of stereo 44.1k sound extracted from an underlying
+     * Flash Player Sound object. 
+     */
     public class SoundSource extends AbstractSource
     {
         /** Underlying sound for this source. */
