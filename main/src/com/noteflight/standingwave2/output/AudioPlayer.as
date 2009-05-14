@@ -8,6 +8,12 @@ package com.noteflight.standingwave2.output
     import flash.media.Sound;
     import flash.media.SoundChannel;
     
+    /**
+     * An AudioPlayer streams samples from an IAudioSource to a Sound object using a
+     * SampleDataEvent listener.  It does so using a preset number of frames per callback,
+     * and continues streaming the output until it is stopped, or until there is no more
+     * audio output obtainable from the IAudioSource.
+     */
     public class AudioPlayer extends EventDispatcher
     {
 
@@ -17,33 +23,21 @@ package com.noteflight.standingwave2.output
         // The SoundChannel that the output is playing through
         private var _channel:SoundChannel;
  
+        // The delegate that handles the actual provision of the samples
         private var _sampleHandler:AudioSampleHandler;
  
+        /**
+         * Construct a new AudioPlayer instance. 
+         * @param framesPerCallback the number of frames that this AudioPlayer will
+         * obtain for playback on each SampleDataEvent emitted by the playback Sound object.
+         */
         public function AudioPlayer(framesPerCallback:Number = 4096)
         {
             _sampleHandler = new AudioSampleHandler(framesPerCallback); 
         }
         
         /**
-         * Begin continuous sample block generation. 
-         */
-        public function startSound():void
-        {
-            if (_sound != null)
-            {
-                return;
-            }
-            _sound = new Sound();
-            _sound.addEventListener(SampleDataEvent.SAMPLE_DATA, handleSampleData);
-            _channel = _sound.play();
-            _sampleHandler.channel = _channel;
-        }
-        
-        
-        
-        /**
          * Play an audio source through this output.  Only one source may be played at a time.
-         *  
          * @param source an IAudioSource instance
          */
         public function play(source:IAudioSource):void
@@ -81,7 +75,33 @@ package com.noteflight.standingwave2.output
         {
             return _sampleHandler.source;
         }
+        
+        /**
+         * The SoundChannel currently employed for playback, or null if there is none.
+         */
+        public function get channel():SoundChannel
+        {
+            return _channel;
+        }
 
+        /**
+         * Begin continuous sample block generation. 
+         */
+        private function startSound():void
+        {
+            if (_sound != null)
+            {
+                return;
+            }
+            _sound = new Sound();
+            _sound.addEventListener(SampleDataEvent.SAMPLE_DATA, handleSampleData);
+            _channel = _sound.play();
+            _sampleHandler.channel = _channel;
+        }
+        
+        /**
+         * Handle a SampleDataEvent by passing it to the AudioSampleHandler delegate.
+         */
         private function handleSampleData(e:SampleDataEvent):void
         {
             _sampleHandler.handleSampleData(e);
@@ -89,7 +109,7 @@ package com.noteflight.standingwave2.output
         }
  
         /**
-         * The position in seconds relative to the start of the current source, else zero 
+         * The actual playback position in seconds, relative to the start of the current source. 
          */
         [Bindable("positionChange")]
         public function get position():Number
@@ -98,7 +118,7 @@ package com.noteflight.standingwave2.output
         }
 
         /**
-         * The position in seconds relative to the start of the current source, else zero 
+         * The estimated percentage of CPU resources being consumed by sound synthesis. 
          */
         [Bindable("positionChange")]
         public function get cpuPercentage():Number
@@ -107,7 +127,8 @@ package com.noteflight.standingwave2.output
         }
 
         /**
-         * The latency in seconds, if known. 
+         * The estimated time between a SampleDataEvent and the actual production of the
+         * sound provided to that event, if known.  The time is expressed in seconds.
          */
         [Bindable("positionChange")]
         public function get latency():Number

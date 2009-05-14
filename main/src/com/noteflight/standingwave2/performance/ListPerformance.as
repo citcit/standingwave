@@ -15,7 +15,7 @@ package com.noteflight.standingwave2.performance
     
     /**
      * A ListPerformance is an ordered list of PerformanceElements, each of which possesses an onset relative to the
-     * start of the performance. 
+     * start of the performance.  The list is optimized for the case where elements are appended in order of start time.
      */
     public class ListPerformance implements IPerformance
     {
@@ -52,6 +52,9 @@ package com.noteflight.standingwave2.performance
             _frameCount = Math.max(_frameCount, element.end);
         }
         
+        /**
+         * Add an IAudioSource to this performance, to start at a particular start time.
+         */
         public function addSourceAt(startTime:Number, source:IAudioSource):void
         {
             addElement(new PerformanceElement(startTime, source));
@@ -138,7 +141,7 @@ package com.noteflight.standingwave2.performance
             var p:ListPerformance = new ListPerformance();
             for each (var element:PerformanceElement in elements)
             {
-                p.addElement(new PerformanceElement(element.start, element.source.clone()));
+                p.addElement(new PerformanceElement(element.startTime, element.source.clone()));
             }
             return p;
         }

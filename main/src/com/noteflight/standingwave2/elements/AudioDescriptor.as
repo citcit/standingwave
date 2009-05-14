@@ -10,7 +10,7 @@ package com.noteflight.standingwave2.elements
 {
     /**
      * An AudioDescriptor describes the characteristics of an audio stream in terms of
-     * number of channels, bits per sample and sample rate.  Every IAudioSource instance
+     * number of channels and sample rate.  Every IAudioSource instance
      * is associated with a AudioDescriptor that indicates what kind of audio data is
      * available from it. 
      */

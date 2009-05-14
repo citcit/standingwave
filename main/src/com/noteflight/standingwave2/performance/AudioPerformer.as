@@ -15,10 +15,11 @@ package com.noteflight.standingwave2.performance
     import com.noteflight.standingwave2.elements.Sample;
     
     /**
-     * An AudioPerformer takes a Performance whose elements consist entirely of
-     * PerformableAudioSources (i.e. timed playbacks of audio sources) and exposes
-     * it as an IAudioSource that can realize time samples of the performance output,
-     * mixing together all the performance elements with the correct time offsets.
+     * An AudioPerformer takes a Performance containing a queryable collection of
+     * PerformanceElements (i.e. timed playbacks of audio sources) and exposes
+     * it as an IAudioSource that can realize time samples of the performance output.
+     * The main job of the AudioPerformer is to mix together all the performance
+     * elements, time-shifted appropriately.
      */
     public class AudioPerformer implements IAudioSource
     {
@@ -27,6 +28,12 @@ package com.noteflight.standingwave2.performance
         private var _frameCount:Number = 0;
         private var _activeElements:Vector.<PerformanceElement>;
                 
+        /**
+         * Construct a new AudioPerformer for a performance.
+         *  
+         * @param performance the IPerformance implementation to be performed when this
+         * AudioPerformer is rendered as an IAudioSource.
+         */
         public function AudioPerformer(performance:IPerformance)
         {
             _performance = performance;
@@ -34,6 +41,10 @@ package com.noteflight.standingwave2.performance
             resetPosition();
         }
         
+        /**
+         * The total duration of this performance.  The duration may be decreased from its default
+         * to truncate the performance, or increased in order to extend it with silence. 
+         */
         public function get duration():Number
         {
             return frameCount / descriptor.rate;
@@ -65,31 +76,44 @@ package com.noteflight.standingwave2.performance
             _frameCount = value;
         }
         
+        /**
+         * @inheritDoc
+         */
         public function get position():Number
         {
             return _position;
         }
         
+        /**
+         * @inheritDoc
+         */
         public function resetPosition():void
         {
             _position = 0;
             _activeElements = new Vector.<PerformanceElement>();
         }
         
+        /**
+         * @inheritDoc
+         */
         public function getSample(numFrames:Number):Sample
         {
             // create our result sample and zero its samples out so we can add in the
             // audio from performance events that intersect our time interval.
-            //
             var sample:Sample = new Sample(descriptor, numFrames);
             
+            // Maintain a list of all PerformanceElements known to be active at the current
+            // audio cursor position.
             var _stillActive:Vector.<PerformanceElement> = new Vector.<PerformanceElement>();
+            
             var element:PerformanceElement;
             var i:Number;
             var j:Number;
             var c:Number;
             
-            // Update the active element list with elements that intersect the time interval of interest.
+            // Prior to generating any audio date, update the active element list with 
+            // any PerformanceElements that intersect the time interval of interest.
+            //
             var elements:Vector.<PerformanceElement> = _performance.getElementsInRange(_position, _position + numFrames);
             for (i = 0; i < elements.length; i++)
             {
@@ -97,8 +121,9 @@ package com.noteflight.standingwave2.performance
                 _activeElements.push(elements[i]);
             }
 
-            // process currently active elements by copying the active section of their signal
-            // into our result sample, noting whether they continue past this time window.
+            // Process all active elements by adding the active section of their signal
+            // into our result sample, and retaining them in the next copy of the active list
+            // if they continue past this time window.
             //
             for each (element in _activeElements)
             {
@@ -139,7 +164,9 @@ package com.noteflight.standingwave2.performance
         
         public function clone():IAudioSource
         {
-            return new AudioPerformer(_performance.clone());
+            var p:AudioPerformer = new AudioPerformer(_performance.clone());
+            p._frameCount = _frameCount; 
+            return p;
         }
     }
 }

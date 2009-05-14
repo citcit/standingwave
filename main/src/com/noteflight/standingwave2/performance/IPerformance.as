@@ -13,7 +13,7 @@ package com.noteflight.standingwave2.performance
     import com.noteflight.standingwave2.elements.AudioDescriptor;
     
     /**
-     * An IPerformance is queryable set of PerformanceElements.  Only time-range queries may be performed.
+     * An IPerformance is a queryable set of PerformanceElements.  Only time-range queries may be performed.
      */
     public interface IPerformance
     {
@@ -36,6 +36,10 @@ package com.noteflight.standingwave2.performance
          */        
         function get frameCount():Number;
         
+        /**
+         * Obtain a clone of this performance, preserving all of its timing information but
+         * cloning all contained audio sources. 
+         */
         function clone():IPerformance;
     }
 }

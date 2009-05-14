@@ -19,7 +19,7 @@ package com.noteflight.standingwave2.filters
      */
     public class AbstractFilter implements IAudioFilter
     {
-        // the source for this filter        
+        /** The underlying source that acts as input to this filter. */        
         protected var _source:IAudioSource;
         
         /**
@@ -35,6 +35,15 @@ package com.noteflight.standingwave2.filters
         // overrideable abstract methods
         ////////////////////////////////////////////
 
+        /**
+         * Transform the data for a channel by modifying it in place; called by the default implementation
+         * of <code>getSample()</code>.  Overridden by subclasses.
+         *  
+         * @param data a Vector of channel data
+         * @param channel the index of the channel being transformed
+         * @param start the starting sample index of the transformation
+         * @param numFrames the number of samples to be transformed
+         */
         protected function transformChannel(data:Vector.<Number>, channel:Number, start:Number, numFrames:Number):void
         {
             throw new Error("generateChannel() not overridden");
@@ -62,7 +71,7 @@ package com.noteflight.standingwave2.filters
         }
 
         /**
-         * Get the AudioDescriptor for this Sample.
+         * @inheritDoc
          */
         public function get descriptor():AudioDescriptor
         {
@@ -85,6 +94,9 @@ package com.noteflight.standingwave2.filters
             return _source.position;
         }
         
+        /**
+         * @inheritDoc
+         */
         public function resetPosition():void
         {
             _source.resetPosition();
@@ -95,6 +107,11 @@ package com.noteflight.standingwave2.filters
          */
         public function getSample(numFrames:Number):Sample
         {
+            // This implementation of getSample delegates its work to transformChannel().
+            // Note that the position is advanced implicitly by the call to _source.getSample()
+            // since this advances the position of the "upstream" source, from which the filter's
+            // position is derived.
+            //
             var startPos:Number = position;
             var sample:Sample = _source.getSample(numFrames);
             for (var c:Number = 0; c < sample.channels; c++)
@@ -104,6 +121,9 @@ package com.noteflight.standingwave2.filters
             return sample;
         }
 
+        /**
+         * @inheritDoc
+         */
         public function clone():IAudioSource
         {
             throw new Error("clone() not overridden");

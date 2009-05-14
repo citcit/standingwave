@@ -17,7 +17,8 @@ package com.noteflight.standingwave2.filters
     /**
      * This filter implementation resamples an input source by interpolating its samples
      * using a sampling frequency that is some factor higher or lower than its actual
-     * sample rate. 
+     * sample rate.  The result is a signal whose speed and pitch are both shifted relative
+     * to the original.
      */
     public class ResamplingFilter implements IAudioSource, IRandomAccessSource
     {
@@ -131,12 +132,12 @@ package com.noteflight.standingwave2.filters
             {
                 var data:Vector.<Number> = channelData[c];
                 var destData:Vector.<Number> = sample.channelData[c];
-                var destFrame:int = fromOffset;
-                var destIndex:uint = 0;
+                var destFrame:Number = fromOffset;
+                var destIndex:Number = 0;
                 var srcFrame:Number;
-                var intPos:uint;
+                var intPos:Number;
                 var fracPos:Number;
-                var srcIndex:uint;
+                var srcIndex:Number;
             
                 while (destFrame < toOffset)
                 {
@@ -145,13 +146,11 @@ package com.noteflight.standingwave2.filters
                     srcFrame = (destFrame * factor) - srcStart;
                     intPos = int(srcFrame);
                     fracPos = srcFrame - intPos;
-                    srcIndex = intPos;
 
-                    var s1:Number = data[srcIndex++];
+                    var s1:Number = data[intPos];
                     if (fracPos > 0)
                     {
-                        var s2:Number = data[srcIndex];
-                        destData[destIndex++] = s1 + (fracPos * (s2 - s1));
+                        destData[destIndex++] = s1 + (fracPos * (data[intPos + 1] - s1));
                     }
                     else
                     {

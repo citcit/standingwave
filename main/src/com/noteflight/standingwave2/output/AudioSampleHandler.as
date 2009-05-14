@@ -8,24 +8,28 @@ package com.noteflight.standingwave2.output
     import flash.media.SoundChannel;
     import flash.utils.getTimer;
  
+    /**
+     * A delegate object that takes care of the work for audio playback by moving data
+     * from an IAudioSource into a SampleDataEvent's ByteArray.
+     */
     public class AudioSampleHandler
     {
-        // Reports % of CPU used after each SampleDataEvent based on last event interval
+        /** Reports % of CPU used after each SampleDataEvent based on last event interval */
         public var cpuPercentage:Number = 0;
 
-        // frames supplied for each SampleDataEvent
+        /** frames supplied for each SampleDataEvent */
         public var framesPerCallback:Number;
         
-        // Overall gain factor for output
+        /** Overall gain factor for output */
         public var gainFactor:Number = 0.5;
         
-        // The absolute frame number of the sample block at which the current source began playing
+        /** The absolute frame number of the sample block at which the current source began playing */
         private var _startFrame:Number = 0;
 
-        // Timer value at conclusion of last sample block calculation, for CPU percentage determination
+        /** Timer value at conclusion of last sample block calculation, for CPU percentage determination */
         private var _lastSampleTime:Number = 0;
         
-        // Flag indicating that the current source has been examined during a sample data event.
+        /** Flag indicating that the current source has been examined during a sample data event. */
         private var _sourceStarted:Boolean;
         
         private var _totalLatency:Number = 0;

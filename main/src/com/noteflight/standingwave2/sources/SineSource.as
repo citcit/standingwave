@@ -13,6 +13,9 @@ package com.noteflight.standingwave2.sources
     import com.noteflight.standingwave2.elements.AudioDescriptor;
     import com.noteflight.standingwave2.elements.IAudioSource;
     
+    /**
+     * A SineSource provides a source whose signal in all channels is a pure sine wave of a given frequency. 
+     */
     public class SineSource extends AbstractSource
     {
         /** Audio descriptor for this source. */
@@ -35,7 +38,7 @@ package com.noteflight.standingwave2.sources
         
         override public function clone():IAudioSource
         {
-            return new SineSource(descriptor, frequency, amplitude);
+            return new SineSource(descriptor, duration, frequency, amplitude);
         }
     }
 }

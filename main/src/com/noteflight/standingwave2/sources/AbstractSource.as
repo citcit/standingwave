@@ -14,6 +14,11 @@ package com.noteflight.standingwave2.sources
     import com.noteflight.standingwave2.elements.IAudioSource;
     import com.noteflight.standingwave2.elements.Sample;
     
+    /**
+     * AbstractSource is an implementation superclass for IAudioSource implementations
+     * that wish to generate their output on a per-channel basis.  An AbstractSource
+     * has standard amplitude and duration properties.
+     */
     public class AbstractSource implements IAudioSource
     {
         /** Audio descriptor for this source. */
@@ -23,8 +28,14 @@ package com.noteflight.standingwave2.sources
         public var amplitude:Number;
         public var duration:Number;
         
-        public static const MAX_DURATION:Number = 100000.0;
+        public static const MAX_DURATION:Number = int.MAX_VALUE;
 
+        /**
+         * Create an AbstractSource of a particular duration and amplitude. 
+         * @param descriptor an AudioDescriptor for the source's audio
+         * @param duration the duration of the source's output
+         * @param amplitude the amplitude of the source's output
+         */
         public function AbstractSource(descriptor:AudioDescriptor, duration:Number = MAX_DURATION, amplitude:Number = 1.0)
         {
             _descriptor = descriptor;

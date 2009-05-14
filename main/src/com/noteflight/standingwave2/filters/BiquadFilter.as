@@ -12,19 +12,48 @@ package com.noteflight.standingwave2.filters
     
     import com.noteflight.standingwave2.elements.IAudioSource;
     
+    /**
+     * Infinite Impulse Response (IIR) linear filter based on the "Direct Form 1"
+     * filter structure, incorporating four delay lines from the two previous input and
+     * output values.
+     *  
+     * This filter can be used in three ways: as a low-pass filter that attenuates frequencies
+     * higher than the <code>frequency</code> property, as a high-pass filter that attenuates frequencies lower
+     * than the center, or as a band-pass filter that attenuates frequencies that lie
+     * further from the center.  In all three cases the <code>resonance</code> property controls
+     * the abruptness of the rolloff as a function of frequency.  The <code>type</code> property
+     * determines which filter behavior is used.  
+     */
     public class BiquadFilter extends AbstractFilter
     {
         private var _frequency:Number;
         private var _resonance:Number;
         private var _type:int;
-        private var _state:Array = null;
+        
+        private var _state:Array = null;  // per-channel arrays of delay line values
+        
+        private var _calculated:Boolean = false; // true when coefficients have been calculated
         private var _a0:Number, _a1:Number, _a2:Number; 
         private var _b0:Number, _b1:Number, _b2:Number; 
         
+        /** Low-pass filter type */
         public static const LOW_PASS_TYPE:int = 0;
+
+        /** High-pass filter type */
         public static const HIGH_PASS_TYPE:int = 1;
+
+        /** Band-pass filter type (constant peak, attenuated skirt) */
         public static const BAND_PASS_TYPE:int = 2;
         
+        /**
+         * Construct an instance of a BiquadFilter.  Parameters may be left as defaulted and/or changed
+         * later while the filter is in operation.
+         * 
+         * @param source the underlying audio source
+         * @param type the type of filter desired
+         * @param frequency the center frequency of the filter
+         * @param resonance the resonance characteristic of the filter, also known as "Q"
+         */
         public function BiquadFilter(source:IAudioSource = null, type:int = LOW_PASS_TYPE, frequency:Number = 1000, resonance:Number = 1)
         {
             super(source);
@@ -36,9 +65,18 @@ package com.noteflight.standingwave2.filters
         override public function resetPosition():void
         {
             super.resetPosition();
-            initializeState();
+
+            // Initialize delay line state per channel when the cursor is reset
+            _state = [];
+            for (var i:int = 0; i < descriptor.channels; i++)
+            {
+                _state[i] = [ 0, 0, 0, 0 ];
+            }
         }        
         
+        /**
+         * The type of the filter, which controls the shape of its frequency response.
+         */
         public function get type():int
         {
             return _type;
@@ -47,9 +85,12 @@ package com.noteflight.standingwave2.filters
         public function set type(value:int):void
         {
             _type = value;
-            initializeState();
+            invalidateCoefficients();
         }
         
+        /**
+         * The center frequency of the filter in Hz. 
+         */
         public function get frequency():Number
         {
             return _frequency;
@@ -58,9 +99,12 @@ package com.noteflight.standingwave2.filters
         public function set frequency(value:Number):void
         {
             _frequency = value;
-            initializeState();
+            invalidateCoefficients();
         }
         
+        /**
+         * The resonance of the filter, which controls the degree of attenuation in its frequency response. 
+         */
         public function get resonance():Number
         {
             return _resonance;
@@ -69,26 +113,25 @@ package com.noteflight.standingwave2.filters
         public function set resonance(value:Number):void
         {
             _resonance = value;
-            initializeState();
+            invalidateCoefficients();
         }
         
-        protected function initializeState():void
+        /**
+         * Called when a property change invalidates the derived coefficients for the filter. 
+         */
+        protected function invalidateCoefficients():void
         {
-            _state = null;
+            _calculated = false;
         }
         
-        protected function computeState():void
+        /**
+         * Called to force calculation of the derived coefficients.
+         */
+        protected function computeCoefficients():void
         {
-            if (_state != null)
+            if (_calculated)
             {
                 return;
-            }
-            
-            // Initialize delay line state per channel
-            _state = [];
-            for (var i:int = 0; i < descriptor.channels; i++)
-            {
-                _state[i] = [ 0, 0, 0, 0 ];
             }
             
             // Set up filter coefficients.
@@ -135,6 +178,8 @@ package com.noteflight.standingwave2.filters
             _b2 /= _a0;
             _a1 /= _a0;
             _a2 /= _a0;
+            
+            _calculated = true;
         }
         
         ////////////////////////////////////////////        
@@ -143,14 +188,19 @@ package com.noteflight.standingwave2.filters
 
         override protected function transformChannel(data:Vector.<Number>, channel:Number, start:Number, numFrames:Number):void
         {
-            computeState();
+            // Get our magic numbers.
+            computeCoefficients();
             
+            // Cache the delay line values for each channel in a set of locals for efficiency
             var channelState:Array = _state[channel];
             var x1:Number = channelState[0];
             var x2:Number = channelState[1];
             var y1:Number = channelState[2];
             var y2:Number = channelState[3];
             
+            // Apply the linear filter for each sample frame, and cascade values through the
+            // input and output delay lines.
+            //
             for (var i:Number = 0; i < numFrames; i++)
             {
                 var x:Number = data[i];
@@ -161,6 +211,7 @@ package com.noteflight.standingwave2.filters
                 data[i] = y1 = y;
             }
 
+            // Put the locals back into the cached delay line state for this channel
             channelState[0] = x1;
             channelState[1] = x2;
             channelState[2] = y1;
