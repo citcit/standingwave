@@ -27,7 +27,7 @@
 
             // player used to play all sources in this test app
             [Bindable]
-            public var player:AudioPlayer = new AudioPlayer();
+            public var player:AudioPlayer = new AudioPlayer(8192);
             
             // sound sample used for test purposes
             [Embed(source="testing123.mp3")]
@@ -41,8 +41,29 @@
             // performance queue used for sine sequences
             private var sineSeqQueue:QueuePerformance = new QueuePerformance();
             
+            // Cached sine sources
+            private var sineTones:Array;
+            
             public function onApplicationComplete():void
             {
+                initializeSineTones();
+            }
+            
+            // Initialize an array of cached sine sources that will be used to synthesize sequences
+            public function initializeSineTones():void
+            {
+                sineTones = [];
+                for (var i:int = 0; i < 24; i++)
+                {
+                    // Adjacent tones are in a ratio of 2 ^ (1/12), since there are twelve tones per octave.
+                    // The lowest is at concert A, 440 Hz.  We cache the tones to avoid computing the sine functions
+                    // during playback, which is more expensive.
+                    //
+                    var frequency:Number = 440 * Math.exp(i * Math.LN2 / 12.0)
+                    var tone:CacheFilter = new CacheFilter(new SineSource(new AudioDescriptor(), 1, frequency));
+                    tone.fill();
+                    sineTones.push(tone);
+                }
             }
             
             // Play an audio source with optional filter treatments
@@ -66,7 +87,8 @@
                         p.addSourceAt(0, source);
                         source = new AudioPerformer(p);
                     }
-                    // Chuck a time interval of silence onto the end for the echoes to fade away
+                    
+                    // Append a time interval of silence onto the end for the echoes to fade away
                     AudioPerformer(source).duration += 2.5;
                     
                     echo.period = echoDelay.value;
@@ -88,37 +110,46 @@
                 player.play(source);
             }
             
+            // Play a sine wave of basically infinite duration
             public function playSine():void
             {
-                playSource(new SineSource(new AudioDescriptor(), 100000, 440));
+                playSource(new SineSource(new AudioDescriptor(), int.MAX_VALUE, 440));
             }
 
+            // Play a cached sine tone with no envelope
             public function playShortSine():void
             {
-                playSource(new SineSource(new AudioDescriptor(), 1.0, 440));
+                playSource(sineTones[0]);
             }
             
+            // Create a ListPerformance of a shuffled 2-octave chromatic scale. 
             public function createSineSequence():IPerformance
             {
                 var p:ListPerformance = new ListPerformance();
-                for (var i:Number = 0; i < 20; i++)
+                var toneSet:Array = sineTones.slice();
+                for (var i:int = 0; i < sineTones.length; i++)
                 {
-                    // Cook up a random frequency quantized to a 2-octave equal-temperament scale.  Note that
-                    // adjacent tones are in a ratio of 2 ^ (1/12), since there are twelve tones per octave.
-                    //
-                    var frequency:Number = 440 * Math.exp(Math.floor(24 * Math.random()) * Math.LN2 / 12.0)
-                    var noteSource:IAudioSource = new SineSource(new AudioDescriptor(), 1, frequency);
+                    // randomly select a sine tone and delete it from the set
+                    var j:int = Math.floor(toneSet.length * Math.random());
+                    var noteSource:IAudioSource = toneSet[j].clone();
+                    toneSet.splice(j, 1);
+                    
+                    // Apply an envelope to shape the tone and add it to the performance
                     noteSource = new EnvelopeFilter(noteSource, envelopeAttack.value, envelopeDecay.value, envelopeSustain.value, envelopeHold.value, envelopeRelease.value);
                     p.addSourceAt(i * 0.1, noteSource);
                 }
                 return p;
             }
             
+            // Play a random sequence of sine tones, once through
             public function playSineSequence():void
             {
                 playSource(new AudioPerformer(createSineSequence()));
             }
             
+            // Start playing a repeating sine sequence using a QueuePerformance
+            // that repeats a nested performance of a sine sequence.
+            // 
             public function startSineSequence():void
             {
                 sineSeqQueue = new QueuePerformance();
@@ -126,11 +157,14 @@
                 playSource(new AudioPerformer(sineSeqQueue));
             }
             
+            // Enqueue a new sine sequence to be played as soon as the current one is finished.
+            //
             public function queueSineSequence():void
             {
                 sineSeqQueue.addSource(new AudioPerformer(createSineSequence()));
             }
             
+            // Play an embedded test sound.
             public function playSound():void
             {
                 playSource(new SoundSource(new testSound));
@@ -143,6 +177,7 @@
                 {label: "Band Pass", value: BiquadFilter.BAND_PASS_TYPE}
             ];
             
+            // Data tip function for logarithmic sliders
             public static function logDataTip(value:Number):String
             {
                 return int(Math.exp(value * Math.LN10)).toString();
@@ -151,21 +186,24 @@
     </mx:Script>
     
     <mx:VBox>
+        <mx:Button label="Stop" click="player.stop()"/>
+        <mx:Spacer height="10"/>
         <mx:Button label="Play Sine Wave" click="playSine()"/>
         <mx:Button label="Play 1-second Sine Wave" click="playShortSine()"/>
         <mx:HBox>
-            <mx:Button label="Start Repeated Sine Sequence" click="startSineSequence()"/>
-            <mx:Button label="Queue New Sine Sequence" click="queueSineSequence()"/>
+            <mx:Button label="One-shot Sequence" click="playSineSequence()"/>
+            <mx:Button label="Repeat Sequence" click="startSineSequence()"/>
+            <mx:Button label="Make New Sequence" click="queueSineSequence()"/>
             <mx:Label text="A"/>
-            <mx:VSlider id="envelopeAttack" value="0.01" minimum="0" maximum="1" height="100"/>
+            <mx:VSlider id="envelopeAttack" value="0.01" minimum="0" maximum="0.05" height="100"/>
             <mx:Label text="D"/>
-            <mx:VSlider id="envelopeDecay" value="0.0" minimum="0" maximum="1" height="100"/>
+            <mx:VSlider id="envelopeDecay" value="0.0" minimum="0" maximum="0.2" height="100"/>
             <mx:Label text="S"/>
             <mx:VSlider id="envelopeSustain" value="0.5" minimum="0" maximum="1" height="100"/>
             <mx:Label text="H"/>
-            <mx:VSlider id="envelopeHold" value="0.05" minimum="0" maximum="1" height="100"/>
+            <mx:VSlider id="envelopeHold" value="0.05" minimum="0" maximum="0.2" height="100"/>
             <mx:Label text="R"/>
-            <mx:VSlider id="envelopeRelease" value="0.05" minimum="0" maximum="1" height="100"/>
+            <mx:VSlider id="envelopeRelease" value="0.05" minimum="0" maximum="0.2" height="100"/>
         </mx:HBox>
         <mx:Button label="Play Embedded Sound" click="playSound()"/>
         <mx:Spacer height="10"/>
@@ -185,8 +223,6 @@
                 <mx:VSlider id="biquadResonance" value="1" minimum="0" maximum="5" height="100"/>
             </mx:HBox>
         </mx:HBox>
-        <mx:Spacer height="10"/>
-        <mx:Button label="Stop" click="player.stop()"/>
         <mx:Spacer height="10"/>
         <mx:Label text="position: {player.position}"/>
         <mx:Label text="cpu: {player.cpuPercentage}%"/>

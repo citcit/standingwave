@@ -26,7 +26,7 @@ package com.noteflight.standingwave2.filters
         private var _cache:Sample;
         private var _position:Number;
         private var _source:IAudioSource;
-        
+
         public function CacheFilter(source:IAudioSource = null)
         {
             this.source = source;
@@ -94,19 +94,7 @@ package com.noteflight.standingwave2.filters
          */
         public function getSampleRange(fromOffset:Number, toOffset:Number):Sample
         {
-            if (toOffset > source.position)
-            {
-                // An uncached run of data is being retrieved; add it to the cache by calling
-                // getSample() on the source and copying that into the cache.  This advances the
-                // cursor position of the source, which records how much of it has been cached
-                // downstream in this CacheFilter.
-                //
-                var sample:Sample = source.getSample(toOffset - source.position);
-                for (var c:int = 0; c < sample.channels; c++)
-                {
-                    _cache.channelData[c] = Vector.<Number>(_cache.channelData[c]).concat(sample.channelData[c]);
-                }
-            }
+            fill(toOffset);
             return _cache.getSampleRange(fromOffset, toOffset);
         }
          
@@ -120,9 +108,39 @@ package com.noteflight.standingwave2.filters
             return sample;
         }
         
+        /**
+         * Instruct this cache to fill itself up to the given frame offset from its source. 
+         * @param toOffset a sample frame index; if negative/omitted, reads the entire source.
+         */
+        public function fill(toOffset:Number = -1):void
+        {
+            if (toOffset < 0)
+            {
+                toOffset = source.frameCount;
+            }
+            
+            if (toOffset > source.position)
+            {
+                // An uncached run of data is being retrieved; add it to the cache by calling
+                // getSample() on the source and copying that into the cache.  This advances the
+                // cursor position of the source, which records how much of it has been cached
+                // downstream in this CacheFilter.
+                //
+                var sample:Sample = source.getSample(toOffset - source.position);
+                for (var c:int = 0; c < sample.channels; c++)
+                {
+                    _cache.channelData[c] = Vector.<Number>(_cache.channelData[c]).concat(sample.channelData[c]);
+                }
+            }
+        }
+        
         public function clone():IAudioSource
         {
-            return new CacheFilter(source.clone());
+            var c:CacheFilter = new CacheFilter();
+            c._cache = _cache;
+            c._source = _source;
+            resetPosition();
+            return c;
         }
     }
 }

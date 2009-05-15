@@ -133,6 +133,11 @@ package com.noteflight.standingwave2.output
             case AudioDescriptor.RATE_44100:
                 endFrame = Math.min(_source.frameCount, frame + framesPerCallback);
                 length = Math.max(0, endFrame - frame);
+                if (length == 0)
+                {
+                    break;
+                }
+                
                 sample = _source.getSample(length);
 
                 switch (sample.descriptor.channels)
@@ -161,6 +166,11 @@ package com.noteflight.standingwave2.output
             case AudioDescriptor.RATE_22050:
                 endFrame = Math.min(_source.frameCount * 2, frame + framesPerCallback);
                 length = Math.max(0, endFrame - frame);
+                if (length == 0)
+                {
+                    break;
+                }
+                
                 var halfLength:Number = length >> 1;
                 sample = _source.getSample(halfLength);
                 var signal:Number;
@@ -208,7 +218,7 @@ package com.noteflight.standingwave2.output
 
             if (length == 0)
             {
-                _source = null
+                _source = null;
                 _sourceStarted = false;
             }
             else if (length > 0 && length < framesPerCallback)
