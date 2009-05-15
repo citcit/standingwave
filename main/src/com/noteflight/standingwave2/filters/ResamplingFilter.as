@@ -108,6 +108,11 @@ package com.noteflight.standingwave2.filters
          */
         public function getSampleRange(fromOffset:Number, toOffset:Number):Sample
         {
+            trace(fromOffset, toOffset);
+            if (fromOffset == toOffset)
+            {
+                trace("why?");
+            }
             if (factor == 1)
             {
                 // not likely, but optimize case where there is no frequency shift
@@ -137,7 +142,6 @@ package com.noteflight.standingwave2.filters
                 var srcFrame:Number;
                 var intPos:Number;
                 var fracPos:Number;
-                var srcIndex:Number;
             
                 while (destFrame < toOffset)
                 {
