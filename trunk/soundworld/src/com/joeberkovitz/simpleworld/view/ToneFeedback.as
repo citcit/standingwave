@@ -4,21 +4,20 @@ package com.joeberkovitz.simpleworld.view
     import com.joeberkovitz.moccasin.view.SelectionHandle;
     import com.joeberkovitz.moccasin.view.ViewContext;
     import com.joeberkovitz.simpleworld.controller.PointDragMediator;
-    import com.joeberkovitz.simpleworld.model.Square;
+    import com.joeberkovitz.simpleworld.model.Tone;
     
     import flash.display.Sprite;
-    import flash.geom.Point;
 
     /**
-     * Feedback variation of a SquareView that displays associated resizing handle in the editor's
-     * feedbackLayer UIComponent. Note that this extends ShapeView and thus inherits its position-tracking behavior.
+     * Feedback variation of a ToneView that displays associated resizing handle in the editor's
+     * feedbackLayer UIComponent. Note that this extends SonicElementView and thus inherits its position-tracking behavior.
      */
-    public class SquareFeedback extends ShapeView
+    public class ToneFeedback extends SonicElementView
     {
         private var _sizeHandle:SelectionHandle;
         private var _outline:Sprite;
         
-        public function SquareFeedback(context:ViewContext, model:MoccasinModel=null)
+        public function ToneFeedback(context:ViewContext, model:MoccasinModel=null)
         {
             super(context, model, false);
             initialize();
@@ -26,9 +25,9 @@ package com.joeberkovitz.simpleworld.view
             new PointDragMediator(context, "corner").handleViewEvents(this, _sizeHandle);
         }
         
-        public function get square():Square
+        public function get tone():Tone
         {
-            return model.value as Square;
+            return model.value as Tone;
         }
         
         override protected function createChildren():void
@@ -49,13 +48,12 @@ package com.joeberkovitz.simpleworld.view
                         
             // Draw a gray selection border around the square
             _outline.graphics.clear();
-            _outline.rotation = square.angle * 180 / Math.PI;
             _outline.graphics.lineStyle(1, 0x999999);
-            _outline.graphics.drawRect(-square.size/2, -square.size/2, square.size, square.size);
+            _outline.graphics.drawRect(0, 0, tone.width, tone.height);
 
             // reposition the resizing handle
-            _sizeHandle.x = square.cornerX - square.x;
-            _sizeHandle.y = square.cornerY - square.y;
+            _sizeHandle.x = tone.cornerX - tone.x;
+            _sizeHandle.y = tone.cornerY - tone.y;
         }
     }
 }

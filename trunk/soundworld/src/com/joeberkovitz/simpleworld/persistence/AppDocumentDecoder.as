@@ -2,11 +2,9 @@ package com.joeberkovitz.simpleworld.persistence
 {
     import com.joeberkovitz.moccasin.model.ModelRoot;
     import com.joeberkovitz.moccasin.persistence.IDocumentDecoder;
-    import com.joeberkovitz.simpleworld.model.Line;
-    import com.joeberkovitz.simpleworld.model.Square;
-    import com.joeberkovitz.simpleworld.model.World;
-    
-    import flash.geom.Point;
+    import com.joeberkovitz.simpleworld.model.Composition;
+    import com.joeberkovitz.simpleworld.model.SoundClip;
+    import com.joeberkovitz.simpleworld.model.Tone;
 
     /**
      * Application specific XML decoder that creates a top-level model object from an XML document.
@@ -20,26 +18,28 @@ package com.joeberkovitz.simpleworld.persistence
         public function decodeDocument(data:*):ModelRoot
         {
             var xml:XML = data as XML;
-            var world:World = new World();
+            var world:Composition = new Composition();
             
             for each (var shapeXml:XML in xml.children())
             {
                 switch (shapeXml.name().toString())
                 {
-                    case "square":
-                        var square:Square = new Square();
-                        square.x = shapeXml.@x;
-                        square.y = shapeXml.@y;
-                        square.size = shapeXml.@size;
-                        world.shapes.addItem(square);
+                    case "tone":
+                        var tone:Tone = new Tone();
+                        tone.x = shapeXml.@x;
+                        tone.y = shapeXml.@y;
+                        tone.width = shapeXml.@width;
+                        tone.height = shapeXml.@height;
+                        world.elements.addItem(tone);
                         break;
-                        
-                    case "line":
-                        var line:Line = new Line();
-                        line.x = shapeXml.@x1;
-                        line.y = shapeXml.@y1;
-                        line.p2 = new Point(shapeXml.@x2, shapeXml.@y2);
-                        world.shapes.addItem(line);
+
+                    case "soundClip":
+                        var clip:SoundClip = new SoundClip();
+                        clip.x = shapeXml.@x;
+                        clip.y = shapeXml.@y;
+                        clip.url = shapeXml.@url;
+                        clip.height = shapeXml.@height;
+                        world.elements.addItem(clip);
                         break;
                 }
             }

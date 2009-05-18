@@ -4,25 +4,25 @@ package com.joeberkovitz.simpleworld.model
     import flash.geom.Rectangle;
         
     /**
-     * Value object representing a Square in the world. 
+     * Value object representing a sine tone. 
      */
     [RemoteClass]
-    public class Square extends WorldShape
+    public class Tone extends SonicElement
     {
         [Bindable]
-        public var size:Number;
+        public var width:Number;
         
         [Bindable]
-        public var angle:Number = 0;
- 
+        public var height:Number;
+        
         public function get cornerX():Number
         {
-            return x + (size/2) * Math.cos(angle + Math.PI/4) * Math.SQRT2; 
+            return x + width; 
         }
         
         public function get cornerY():Number
         {
-            return y + (size/2) * Math.sin(angle + Math.PI/4) * Math.SQRT2; 
+            return y + height; 
         }
         
         public function get corner():Point
@@ -32,12 +32,13 @@ package com.joeberkovitz.simpleworld.model
         
         public function set corner(p:Point):void
         {
-            size = 2 * Point.distance(p, new Point(x, y)) * Math.SQRT1_2;
+            width = p.x - x;
+            height = p.y - y;
         }
  
         override public function get bounds():Rectangle
         {
-            return new Rectangle(x, y, size, size);
+            return new Rectangle(x, y, width, height);
         }
      }
 }

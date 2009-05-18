@@ -3,26 +3,26 @@ package com.joeberkovitz.simpleworld.controller
     import com.joeberkovitz.moccasin.controller.DragMediator;
     import com.joeberkovitz.moccasin.model.MoccasinModel;
     import com.joeberkovitz.moccasin.view.ViewContext;
-    import com.joeberkovitz.simpleworld.model.Square;
-    import com.joeberkovitz.simpleworld.model.WorldShape;
-    import com.joeberkovitz.simpleworld.view.WorldView;
+    import com.joeberkovitz.simpleworld.model.SonicElement;
+    import com.joeberkovitz.simpleworld.model.Tone;
+    import com.joeberkovitz.simpleworld.view.CompositionView;
     
     import flash.display.Shape;
     import flash.events.MouseEvent;
     import flash.geom.Rectangle;
 
     /**
-     * Mediator for the WorldView that adds a new square at a clicked location, but for
+     * Mediator for the WorldView that adds a new tone at a clicked location, but for
      * a drag gesture draws a marquee rectangle that selects enclosed objects.
      */
     public class MarqueeSelectionMediator extends DragMediator
     {
-        private var _worldView:WorldView;
+        private var _worldView:CompositionView;
         private var _marquee:Shape;
         private var _worldStart:Rectangle;
         private var _worldDragRect:Rectangle;
         
-        public function MarqueeSelectionMediator(context:ViewContext, worldView:WorldView)
+        public function MarqueeSelectionMediator(context:ViewContext, worldView:CompositionView)
         {
             super(context);
             _worldView = worldView;
@@ -30,16 +30,16 @@ package com.joeberkovitz.simpleworld.controller
         
         override protected function handleClick(e:MouseEvent):void
         {
-            context.controller.document.undoHistory.openGroup("Add Square");
+            context.controller.document.undoHistory.openGroup("Add Tone");
             
-            var square:Square = new Square();
-            square.x = e.localX;
-            square.y = e.localY;
-            square.size = 25;
-            square.color = 0;
-            _worldView.world.shapes.addItem(square);
+            var tone:Tone = new Tone();
+            tone.x = e.localX;
+            tone.y = e.localY;
+            tone.width = 100;
+            tone.height = 25;
+            _worldView.world.elements.addItem(tone);
 
-            context.controller.selectSingleModel(MoccasinModel.forValue(square));
+            context.controller.selectSingleModel(MoccasinModel.forValue(tone));
         }
         
         /**
@@ -48,7 +48,7 @@ package com.joeberkovitz.simpleworld.controller
          */
         override protected function handleDragStart(e:MouseEvent):void
         {
-            context.controller.document.undoHistory.openGroup("Select Shapes");
+            context.controller.document.undoHistory.openGroup("Select Elements");
             
             _marquee = new Shape();
             context.editor.feedbackLayer.addChild(_marquee);
@@ -76,15 +76,15 @@ package com.joeberkovitz.simpleworld.controller
             if (!e.ctrlKey)
                 context.controller.clearSelection();
             
-            var selectedShapes:Array = [];
-            for each (var ws:WorldShape in _worldView.world.shapes)
+            var selectedElements:Array = [];
+            for each (var ws:SonicElement in _worldView.world.elements)
             {
                 if (ws.bounds.intersects(_worldDragRect))
                 {
-                	selectedShapes.push(MoccasinModel.forValue(ws));
+                	selectedElements.push(MoccasinModel.forValue(ws));
                 }
             }
-            context.controller.modifyMultiSelection(selectedShapes);
+            context.controller.modifyMultiSelection(selectedElements);
         }
         
         private function get dragEndpointRect():Rectangle

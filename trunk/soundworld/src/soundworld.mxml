@@ -26,11 +26,7 @@
             {
                 // Create a configuration service to provide startup defaults to the editor
                 editor.configurationService = new BasicConfigurationService(null, null);
-/*                 
-                editor2.configurationService = new BasicConfigurationService(null, null);
-                editor2.initializeEditor();
-                editor.addEventListener(EditorEvent.DOCUMENT_LAYOUT_CHANGE, function(e:Event):void { editor2.moccasinDocument = editor.moccasinDocument; });
- */
+
                 // initialize the editor and its menu bar
                 editor.initializeEditor();
                 editorMenuBar.editor = editor;
@@ -41,10 +37,10 @@
     <mx:VBox id="editorBody" width="100%" height="100%" horizontalAlign="left">
         <sweditor:AirAppMenuBar id="editorMenuBar" width="100%"/>
         <sweditor:AirAppEditor id="editor" height="100%" width="100%" minHeight="50" minWidth="50"/>
-        <!-- <sweditor:AirAppEditor id="editor2" height="100%" width="100%" minHeight="50" minWidth="50"/> -->
         <mx:HBox>
             <mx:Label text="Zoom:"/>
             <mx:HSlider id="scaleSlider" minimum="0.5" maximum="4" value="1" change="editor.setScale(scaleSlider.value)"/>
         </mx:HBox>
     </mx:VBox>
+    <mx:Label y="40" text="Click to create tones, drag/drop MP3 files to place sound clips."/>
 </mx:WindowedApplication>
