@@ -9,7 +9,7 @@ package com.joeberkovitz.simpleworld.controller
     import flash.geom.Point;
 
     /**
-     * Mediator to resize a shape. 
+     * Mediator to handle a drag gesture on a handle by setting a Point-type property. 
      */
     public class PointDragMediator extends DragMediator
     {
@@ -36,7 +36,7 @@ package com.joeberkovitz.simpleworld.controller
         }
         
         /**
-         * At the start of a drag, capture the size the selected shape.
+         * At the start of a drag, capture the size the selected element.
          */
         override protected function handleDragStart(e:MouseEvent):void
         {

@@ -2,27 +2,27 @@ package com.joeberkovitz.simpleworld.view
 {
     import com.joeberkovitz.moccasin.model.MoccasinModel;
     import com.joeberkovitz.moccasin.view.ViewContext;
-    import com.joeberkovitz.simpleworld.model.Line;
+    import com.joeberkovitz.simpleworld.model.Tone;
     
     import flash.display.DisplayObject;
 
     /**
-     * View of a Line. 
+     * View of a Tone value object in the world. 
      */
-    public class LineView extends ShapeView
+    public class ToneView extends SonicElementView
     {
-        public function LineView(context:ViewContext, model:MoccasinModel=null)
+        public function ToneView(context:ViewContext, model:MoccasinModel=null)
         {
             super(context, model);
             initialize();
         }
         
         /**
-         * The Line object associated with this view's MoccasinModel.
+         * The Tone object associated with this view's MoccasinModel.
          */
-        public function get line():Line
+        public function get tone():Tone
         {
-            return model.value as Line;
+            return model.value as Tone;
         }
         
         /**
@@ -31,10 +31,10 @@ package com.joeberkovitz.simpleworld.view
         override protected function updateView():void
         {
             super.updateView();
-
-            graphics.lineStyle(3, line.color);
-            graphics.moveTo(0, 0);
-            graphics.lineTo(line.width, line.height);
+            
+            graphics.beginFill(0);
+            graphics.drawRect(0, 0, tone.width, tone.height);
+            graphics.endFill();
         }
         
         /**
@@ -42,7 +42,7 @@ package com.joeberkovitz.simpleworld.view
          */        
         override protected function createFeedbackView():DisplayObject
         {
-            return new LineFeedback(context, model);
+            return new ToneFeedback(context, model);
         }
     }
 }

@@ -3,14 +3,13 @@ package com.joeberkovitz.simpleworld.view
     import com.joeberkovitz.moccasin.model.MoccasinModel;
     import com.joeberkovitz.moccasin.view.SelectableView;
     import com.joeberkovitz.moccasin.view.ViewContext;
-    import com.joeberkovitz.simpleworld.controller.ShapeDragMediator;
-    import com.joeberkovitz.simpleworld.model.WorldShape;
+    import com.joeberkovitz.simpleworld.controller.ElementDragMediator;
+    import com.joeberkovitz.simpleworld.model.SonicElement;
 
     /**
-     * View of a WorldShape value object in this application.  ShapeViews may be dragged around if
-     * appropriate, and they move to track the object's position when that changes. 
+     * View of a SonicElement value object in this application. 
      */
-    public class ShapeView extends SelectableView
+    public class SonicElementView extends SelectableView
     {
         private var _allowDrag:Boolean;
         
@@ -18,22 +17,22 @@ package com.joeberkovitz.simpleworld.view
          * Create a view of a WorldShape. 
          * 
          * @param context the ViewContext shared by all views in this document view
-         * @param model a MoccasinModel whose value object is the shape to be displayed
+         * @param model a MoccasinModel whose value object is the sonic element to be displayed
          * @param allowDrag an optional flag controlling the draggability of this view.
          * 
          */
-        public function ShapeView(context:ViewContext, model:MoccasinModel, allowDrag:Boolean = true)
+        public function SonicElementView(context:ViewContext, model:MoccasinModel, allowDrag:Boolean = true)
         {
             super(context, model);
             _allowDrag = allowDrag;
         }
         
         /**
-         * The shape that this view presents.
+         * The element that this view presents.
          */
-        public function get shape():WorldShape
+        public function get element():SonicElement
         {
-            return model.value as WorldShape;
+            return model.value as SonicElement;
         }
         
         /**
@@ -44,7 +43,7 @@ package com.joeberkovitz.simpleworld.view
             super.initialize();
             if (_allowDrag)
             {
-                new ShapeDragMediator(context).handleViewEvents(this);
+                new ElementDragMediator(context).handleViewEvents(this);
             }
         }
         
@@ -55,8 +54,8 @@ package com.joeberkovitz.simpleworld.view
         {
             super.updateView();
             
-            x = shape.x;
-            y = shape.y;
+            x = element.x;
+            y = element.y;
         }
     }
 }

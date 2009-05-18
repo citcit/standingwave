@@ -4,19 +4,20 @@ package com.joeberkovitz.simpleworld.view
     import com.joeberkovitz.moccasin.view.IMoccasinView;
     import com.joeberkovitz.moccasin.view.MoccasinView;
     import com.joeberkovitz.moccasin.view.ViewContext;
-    import com.joeberkovitz.simpleworld.controller.WorldMediator;
-    import com.joeberkovitz.simpleworld.model.Line;
-    import com.joeberkovitz.simpleworld.model.Square;
-    import com.joeberkovitz.simpleworld.model.World;
+    import com.joeberkovitz.simpleworld.controller.CompositionMediator;
+    import com.joeberkovitz.simpleworld.editor.SoundRenderer;
+    import com.joeberkovitz.simpleworld.model.Composition;
+    import com.joeberkovitz.simpleworld.model.SoundClip;
+    import com.joeberkovitz.simpleworld.model.Tone;
     
     import flash.utils.getQualifiedClassName;
 
     /**
-     * View of the entire sample application's World value object.
+     * View of the entire sample application's Composition value object.
      */
-    public class WorldView extends MoccasinView
+    public class CompositionView extends MoccasinView
     {
-        public function WorldView(context:ViewContext, model:MoccasinModel=null)
+        public function CompositionView(context:ViewContext, model:MoccasinModel=null)
         {
             super(context, model);
             initialize();
@@ -25,9 +26,9 @@ package com.joeberkovitz.simpleworld.view
         /**
          * The World of which this is a view.
          */
-        public function get world():World
+        public function get world():Composition
         {
-            return model.value as World;
+            return model.value as Composition;
         }
         
         /**
@@ -36,7 +37,7 @@ package com.joeberkovitz.simpleworld.view
         override protected function initialize():void
         {
             super.initialize();
-            new WorldMediator(context).handleViewEvents(this);
+            new CompositionMediator(context).handleViewEvents(this);
         }
         
         /**
@@ -49,6 +50,10 @@ package com.joeberkovitz.simpleworld.view
             graphics.beginFill(0xFFFFFF);
             graphics.drawRect(0, 0, world.width, world.height);
             graphics.endFill();
+            
+            graphics.lineStyle(1, 0x999999);
+            graphics.moveTo(0, SoundRenderer.CENTER_Y);
+            graphics.lineTo(world.width, SoundRenderer.CENTER_Y);
         }
 
         /**
@@ -58,13 +63,13 @@ package com.joeberkovitz.simpleworld.view
          */
         override public function createChildView(child:MoccasinModel):IMoccasinView
         {
-            if (child.value is Square)
+            if (child.value is SoundClip)
             {
-                return new SquareView(context, child);
+                return new SoundClipView(context, child);
             }
-            else if (child.value is Line)
+            else if (child.value is Tone)
             {
-                return new LineView(context, child);
+                return new ToneView(context, child);
             }
             else
             {

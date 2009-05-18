@@ -2,10 +2,10 @@ package com.joeberkovitz.simpleworld.persistence
 {
     import com.joeberkovitz.moccasin.model.ModelRoot;
     import com.joeberkovitz.moccasin.persistence.IDocumentEncoder;
-    import com.joeberkovitz.simpleworld.model.Line;
-    import com.joeberkovitz.simpleworld.model.Square;
-    import com.joeberkovitz.simpleworld.model.World;
-    import com.joeberkovitz.simpleworld.model.WorldShape;
+    import com.joeberkovitz.simpleworld.model.Composition;
+    import com.joeberkovitz.simpleworld.model.SonicElement;
+    import com.joeberkovitz.simpleworld.model.SoundClip;
+    import com.joeberkovitz.simpleworld.model.Tone;
 
     /**
      * Application specific document encoder converting a top-level model into XML.
@@ -18,20 +18,20 @@ package com.joeberkovitz.simpleworld.persistence
 
         public function encodeDocument(root:ModelRoot):*
         {
-            var world:World = root.value as World;
+            var world:Composition = root.value as Composition;
             var xml:XML = <world/>;
             
-            for each (var shape:WorldShape in world.shapes)
+            for each (var element:SonicElement in world.elements)
             {
-                if (shape is Square)
+                if (element is Tone)
                 {
-                    var square:Square = shape as Square;
-                    xml.appendChild(<square x={square.x} y={square.y} size={square.size}/>);
+                    var tone:Tone = element as Tone;
+                    xml.appendChild(<tone x={tone.x} y={tone.y} width={tone.width} height={tone.height}/>);
                 }
-                else if (shape is Line)
+                else if (element is SoundClip)
                 {
-                    var line:Line = shape as Line;
-                    xml.appendChild(<line x1={line.p1.x} y1={line.p1.y} x2={line.p2.x} y2={line.p2.y} />);
+                    var clip:SoundClip = element as SoundClip;
+                    xml.appendChild(<soundClip x={clip.x} y={clip.y} url={clip.url} height={clip.height}/>);
                 }
             }
             
