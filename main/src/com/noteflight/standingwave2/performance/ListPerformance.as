@@ -109,7 +109,7 @@ package com.noteflight.standingwave2.performance
             //
             var el:Vector.<PerformanceElement> = elements;
             var result:Vector.<PerformanceElement> = new Vector.<PerformanceElement>();             
-            _lastIndex = Math.min(_lastIndex, el.length - 1);
+            _lastIndex = Math.max(0, Math.min(_lastIndex, el.length - 1));
 
             // back up if prior element is ahead of starting frame
             while (_lastIndex > 0 && el[_lastIndex - 1].start >= start)

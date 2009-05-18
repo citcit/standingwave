@@ -59,6 +59,7 @@ package com.noteflight.standingwave2.output
             if (source == null || source == _sampleHandler.source)
             {
                 _sampleHandler.source = null;
+                _sampleHandler.channel = null;
                 if (_channel)
                 {
                     _channel.stop();
