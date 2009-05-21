@@ -26,17 +26,18 @@ scales, instruments, and so forth.
 CONTENTS
 
 main/
-        The StandingWave2 code library and SWC.
+        The StandingWave code library and SWC.
 
 test/
-        A FlexUnit test suite for StandingWave2.
+        A FlexUnit test suite for StandingWave.
 
 example/
-        A simple example demonstrating library features.
+        A simple example demonstrating StandingWave features.
 
 soundworld/
-        A simple visual editor for an imaginary "notation" based on the
-        Moccasin project.
+        A simple visual editor for an imaginary "notation" based on the Google Code
+        Moccasin library.  Look at the com.joeberkovitz.simpleworld.editor.SoundRenderer
+        class to go straight to the code where the sound is generated.
 
 
 FLASH and FLEX VERSION REQUIREMENTS
@@ -53,9 +54,10 @@ no harm done.
 
 DOCUMENTATION
 
-There is no free-standing documentation as yet, but the code is
-extensively commented, there is a unit test suite, and the example
-programs exercise most aspects of the library.
+Take a look at doc/index.html!
+
+Also, the code is extensively commented, there is a unit test suite,
+and the example programs exercise most aspects of the library.
 
 
 CONTRIBUTIONS WELCOME
