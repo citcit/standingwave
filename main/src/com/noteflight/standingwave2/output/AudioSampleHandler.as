@@ -4,15 +4,20 @@ package com.noteflight.standingwave2.output
     import com.noteflight.standingwave2.elements.IAudioSource;
     import com.noteflight.standingwave2.elements.Sample;
     
+    import flash.events.Event;
+    import flash.events.EventDispatcher;
     import flash.events.SampleDataEvent;
     import flash.media.SoundChannel;
     import flash.utils.getTimer;
  
+    /** Dispatched when the currently playing sound has completed. */
+    [Event(type="flash.events.Event",name="complete")]
+    
     /**
      * A delegate object that takes care of the work for audio playback by moving data
      * from an IAudioSource into a SampleDataEvent's ByteArray.
      */
-    public class AudioSampleHandler
+    public class AudioSampleHandler extends EventDispatcher
     {
         /** Reports % of CPU used after each SampleDataEvent based on last event interval */
         public var cpuPercentage:Number = 0;
@@ -220,6 +225,7 @@ package com.noteflight.standingwave2.output
             {
                 _source = null;
                 _sourceStarted = false;
+                dispatchEvent(new Event(Event.COMPLETE));
             }
             else if (length > 0 && length < framesPerCallback)
             {

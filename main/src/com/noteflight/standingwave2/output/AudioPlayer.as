@@ -8,6 +8,9 @@ package com.noteflight.standingwave2.output
     import flash.media.Sound;
     import flash.media.SoundChannel;
     
+    /** Dispatched when the currently playing sound has completed. */
+    [Event(type="flash.events.Event",name="complete")]
+    
     /**
      * An AudioPlayer streams samples from an IAudioSource to a Sound object using a
      * SampleDataEvent listener.  It does so using a preset number of frames per callback,
@@ -34,6 +37,7 @@ package com.noteflight.standingwave2.output
         public function AudioPlayer(framesPerCallback:Number = 4096)
         {
             _sampleHandler = new AudioSampleHandler(framesPerCallback); 
+            _sampleHandler.addEventListener(Event.COMPLETE, handleComplete);
         }
         
         /**
@@ -107,6 +111,14 @@ package com.noteflight.standingwave2.output
         {
             _sampleHandler.handleSampleData(e);
             dispatchEvent(new Event("positionChange"));
+        }
+        
+        /**
+         * Handle completion of our sample handler by forwarding the event to anyone listening to us.
+         */
+        private function handleComplete(e:Event):void
+        {
+            dispatchEvent(e);
         }
  
         /**
