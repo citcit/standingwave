@@ -52,7 +52,7 @@ package com.noteflight.standingwave2.sources
             var chan1:Vector.<Number> = sample.channelData[1];
             
             var bytes:ByteArray = new ByteArray();
-            var numSamples:Number = _sound.extract(bytes, numFrames);
+            var numSamples:Number = _sound.extract(bytes, numFrames, position);
             bytes.position = 0;
 
             for (var i:Number = 0; i < numSamples; i++)
