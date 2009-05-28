@@ -33,9 +33,6 @@
             [Embed(source="testing123.mp3")]
             private var testSound1:Class;
 
-            [Embed(source="click.mp3")]
-            private var testSound2:Class;
-
             // set of filters optionally applied to a more fundamental source            
             private var resampler:ResamplingFilter = new ResamplingFilter();
             private var echo:EchoFilter = new EchoFilter();
@@ -177,12 +174,6 @@
                 playSource(new SoundSource(new testSound1));
             }
             
-            // Play an embedded test sound.
-            public function playSound2():void
-            {
-                playSource(new SoundSource(new testSound2));
-            }
-            
             [Bindable]
             public var biquadTypes:Array = [
                 {label: "Low Pass", value: BiquadFilter.LOW_PASS_TYPE}, 
@@ -223,8 +214,7 @@
             <mx:VSlider id="envelopeRelease" value="0.05" minimum="0" maximum="0.2" height="100"/>
         </mx:HBox>
         <mx:HBox>
-            <mx:Button label="Play Embedded Sound 1" click="playSound1()"/>
-            <mx:Button label="Play Embedded Sound 2" click="playSound2()"/>
+            <mx:Button label="Play Embedded Sound" click="playSound1()"/>
         </mx:HBox>
         <mx:Spacer height="10"/>
         <mx:HBox>
