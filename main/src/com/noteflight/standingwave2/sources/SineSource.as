@@ -26,8 +26,8 @@ package com.noteflight.standingwave2.sources
      */
     public class SineSource extends AbstractSource
     {
-        /** Audio descriptor for this source. */
-        public var frequency:Number;
+        private var _frequency:Number = 0;
+        public var phase:Number = 0;
 
         public function SineSource(descriptor:AudioDescriptor, duration:Number, frequency:Number, amplitude:Number = 0.5)
         {
@@ -35,12 +35,41 @@ package com.noteflight.standingwave2.sources
             this.frequency = frequency;
         }
 
+        /**
+         * The frequency of this sine wave. 
+         */
+        public function get frequency():Number
+        {
+            return _frequency;
+        }
+        
+        public function set frequency(value:Number):void
+        {
+            // When the frequency changes, preserve the phase angle at the current position
+            // to avoid discontinuities in the output.  This requires calculating the phase angle
+            // before and after the change, and then adjusting the phase to cancel the difference.
+            //
+            var oldPhase:Number = _position * _frequency / descriptor.rate;
+            oldPhase = (oldPhase - Math.floor(oldPhase)) * 2 * Math.PI; 
+            var newPhase:Number = _position * value / descriptor.rate;
+            newPhase = (newPhase - Math.floor(newPhase)) * 2 * Math.PI; 
+
+            _frequency = value;
+            phase += oldPhase - newPhase;
+        }
+        
+        override public function resetPosition():void
+        {
+            super.resetPosition();
+            phase = 0;
+        }
+        
         override protected function generateChannel(data:Vector.<Number>, channel:Number, numFrames:Number):void
         {
             var factor:Number = frequency * Math.PI * 2 / descriptor.rate;
             for (var i:Number = 0; i < numFrames; i++)
             {
-                data[i] = Math.sin((_position + i) * factor) * amplitude;
+                data[i] = Math.sin((_position + i) * factor + phase) * amplitude;
             }
         }
         

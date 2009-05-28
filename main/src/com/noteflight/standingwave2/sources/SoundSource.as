@@ -52,13 +52,23 @@ package com.noteflight.standingwave2.sources
             var chan1:Vector.<Number> = sample.channelData[1];
             
             var bytes:ByteArray = new ByteArray();
-            _sound.extract(bytes, numFrames, _position);
+            var numSamples:Number = _sound.extract(bytes, numFrames);
             bytes.position = 0;
 
-            for (var i:Number = 0; i < numFrames; i++)
+            for (var i:Number = 0; i < numSamples; i++)
             {
                 chan0[i] = bytes.readFloat();
                 chan1[i] = bytes.readFloat();
+            }
+            
+            // Fix Issue 1: a sound's reported length can slightly exceed the actual number
+            // of samples available from it, so fill out the returned signal with zeroes.
+            //
+            while (i < numFrames)
+            {
+                chan0[i] = 0;
+                chan1[i] = 0;
+                i++;
             }
             
             _position += numFrames;

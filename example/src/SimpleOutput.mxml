@@ -29,14 +29,20 @@
             [Bindable]
             public var player:AudioPlayer = new AudioPlayer(8192);
             
-            // sound sample used for test purposes
+            // sound samples used for test purposes
             [Embed(source="testing123.mp3")]
-            private var testSound:Class;
+            private var testSound1:Class;
+
+            [Embed(source="click.mp3")]
+            private var testSound2:Class;
 
             // set of filters optionally applied to a more fundamental source            
             private var resampler:ResamplingFilter = new ResamplingFilter();
             private var echo:EchoFilter = new EchoFilter();
             private var biquad:BiquadFilter = new BiquadFilter();
+            
+            // sine source
+            private var sineSource:SineSource;
             
             // performance queue used for sine sequences
             private var sineSeqQueue:QueuePerformance = new QueuePerformance();
@@ -113,7 +119,8 @@
             // Play a sine wave of basically infinite duration
             public function playSine():void
             {
-                playSource(new SineSource(new AudioDescriptor(), int.MAX_VALUE, 440));
+                sineSource = new SineSource(new AudioDescriptor(), int.MAX_VALUE, 440); 
+                playSource(sineSource);
             }
 
             // Play a cached sine tone with no envelope
@@ -165,9 +172,15 @@
             }
             
             // Play an embedded test sound.
-            public function playSound():void
+            public function playSound1():void
             {
-                playSource(new SoundSource(new testSound));
+                playSource(new SoundSource(new testSound1));
+            }
+            
+            // Play an embedded test sound.
+            public function playSound2():void
+            {
+                playSource(new SoundSource(new testSound2));
             }
             
             [Bindable]
@@ -188,7 +201,11 @@
     <mx:VBox>
         <mx:Button label="Stop" click="player.stop()"/>
         <mx:Spacer height="10"/>
-        <mx:Button label="Play Sine Wave" click="playSine()"/>
+        <mx:HBox>
+            <mx:Button label="Play Sine Wave" click="playSine()"/>
+            <mx:HSlider id="sineFrequency" value="440" minimum="1" maximum="1000" width="100"
+                change="sineSource.frequency = sineFrequency.value"/>
+        </mx:HBox>
         <mx:Button label="Play 1-second Sine Wave" click="playShortSine()"/>
         <mx:HBox>
             <mx:Button label="One-shot Sequence" click="playSineSequence()"/>
@@ -205,7 +222,10 @@
             <mx:Label text="R"/>
             <mx:VSlider id="envelopeRelease" value="0.05" minimum="0" maximum="0.2" height="100"/>
         </mx:HBox>
-        <mx:Button label="Play Embedded Sound" click="playSound()"/>
+        <mx:HBox>
+            <mx:Button label="Play Embedded Sound 1" click="playSound1()"/>
+            <mx:Button label="Play Embedded Sound 2" click="playSound2()"/>
+        </mx:HBox>
         <mx:Spacer height="10"/>
         <mx:HBox>
             <mx:HBox>
