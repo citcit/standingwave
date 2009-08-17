@@ -20,6 +20,7 @@ package com.noteflight.standingwave2.sources
     
     import com.noteflight.standingwave2.elements.AudioDescriptor;
     import com.noteflight.standingwave2.elements.IAudioSource;
+    import com.noteflight.standingwave2.elements.IRandomAccessSource;
     import com.noteflight.standingwave2.elements.Sample;
     
     import flash.media.Sound;
@@ -29,7 +30,7 @@ package com.noteflight.standingwave2.sources
      * A SoundSource serves as a source of stereo 44.1k sound extracted from an underlying
      * Flash Player Sound object. 
      */
-    public class SoundSource extends AbstractSource
+    public class SoundSource extends AbstractSource implements IRandomAccessSource
     {
         /** Underlying sound for this source. */
         private var _sound:Sound;
@@ -74,6 +75,11 @@ package com.noteflight.standingwave2.sources
             _position += numFrames;
             
             return sample;
+        }
+        
+        public function getSampleRange(fromOffset:Number, toOffset:Number):Sample {
+            _position = fromOffset;
+            return getSample(toOffset - fromOffset);
         }
         
         override public function clone():IAudioSource
