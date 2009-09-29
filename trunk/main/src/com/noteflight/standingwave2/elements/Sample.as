@@ -132,6 +132,15 @@ package com.noteflight.standingwave2.elements
         {
             return channelData[0].length;
         }
+        
+        public function set frameCount(value:Number):void
+        {
+            for (var c:Number = 0; c < channels; c++)
+            {
+                var data:Vector.<Number> = channelData[c];
+                data.length = value;
+            }
+        }
 
         /**
          * @inheritDoc
