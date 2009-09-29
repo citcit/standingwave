@@ -31,6 +31,7 @@ package com.noteflight.standingwave2.elements
         public static const RATE_44100:uint = 44100;
         public static const RATE_22050:uint = 22050;
         public static const RATE_11025:uint = 11025;
+        public static const RATE_8000:uint = 8000;
         public static const RATE_5512:uint = 5512;
 
         /** Sampling rate in Hz */
