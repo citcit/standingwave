@@ -52,6 +52,11 @@ package com.noteflight.standingwave2.elements
             return _rate;
         }
         
+        public function set rate(value:uint)
+        {
+            _rate = value;
+        }
+        
         /** Number of channels */
         public function get channels():uint
         {

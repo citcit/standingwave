@@ -97,7 +97,7 @@ package com.noteflight.standingwave2.formats
                             case 8:
                                 for (i = 0; i < numSamples; i++)
                                 {
-                                    sample.channelData[c++][j] = wav.readByte() / 128.0;
+                                    sample.channelData[c++][j] = (wav.readUnsignedByte() - 128) / 128.0;
                                     if (c == sample.channels)
                                     {
                                         c = 0;
