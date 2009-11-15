@@ -52,7 +52,7 @@ package com.noteflight.standingwave2.elements
             return _rate;
         }
         
-        public function set rate(value:uint)
+        public function set rate(value:uint):void
         {
             _rate = value;
         }
