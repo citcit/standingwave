@@ -154,7 +154,7 @@ package com.noteflight.standingwave2.formats
         public static function writeHeader(dataSize:uint, sampleRate:uint, numChannels:uint, bitDepth:uint):ByteArray
         {
             var wavData:ByteArray = new ByteArray();  
-            wavData.endian = Endian.BIG_ENDIAN;
+            wavData.endian = Endian.LITTLE_ENDIAN;
             //big endian                       
             wavData.writeUTFBytes(RIFF_GROUP_ID);
 
@@ -204,6 +204,7 @@ package com.noteflight.standingwave2.formats
             subChunkSize.writeUnsignedInt(dataSize * numChannels * bitDepth / BYTE_LENGTH);
             
             wavData.writeBytes(subChunkSize);
+            
             return wavData;
         }
     }
